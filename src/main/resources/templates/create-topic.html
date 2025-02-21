@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Topic</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Create a New Topic</h2>
+
+    <form th:action="@{/topics/create}" method="post">
+        <label>Title:</label>
+        <input type="text" name="title" required/>
+
+        <label>Content:</label>
+        <textarea name="content" required></textarea>
+
+        <button type="submit">Create Topic</button>
+    </form>
+
+    <p><a th:href="@{/}">Back to Home</a></p>
+</div>
+
+</body>
+</html>

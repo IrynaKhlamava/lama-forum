@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration result</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script>
+        setTimeout(function () {
+            window.location.href = "/";
+        }, 15000);
+    </script>
+</head>
+<body>
+<div class="container">
+    <h2>Registration result</h2>
+    <p th:text="${message}"></p>
+    <p>You will be redirected to the homepage in 15 seconds...</p>
+    <a href="/">Back to Home</a>
+</div>
+</body>
+</html>

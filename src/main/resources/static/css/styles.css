@@ -1,0 +1,141 @@
+body {
+    font-family: Arial, sans-serif;
+    color: darkgrey;
+    background-color: #f4f4f4;
+    margin: 40px;;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 80%;
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.container h2{
+    color: #666666;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    display: inline-block;
+    background: #00aaaa;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #00aaa3;
+}
+
+.topic {
+    background: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #00aaaa;
+}
+
+.topic h2 {
+    margin: 0;
+    color: #00aaaa;
+}
+
+.topic p {
+    color: #666;
+    margin: 5px 0;
+}
+
+.welcome {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.logout-btn {
+    background: #dc3545;
+    border: none;
+    padding: 6px 12px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: #bd2130;
+}
+
+form {
+    background: white;
+    padding: 20px;
+    max-width: 300px;
+}
+
+input, textarea {
+    width: 100%;
+    min-height: auto;
+    padding: 8px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px; }
+
+button {
+    background-color: #00aaaa;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #058d8d;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #00aaa3;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+

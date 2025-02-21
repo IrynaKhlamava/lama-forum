@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Invite Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="container">
+    <h2>Invite new admin</h2>
+
+    <p th:if="${error}" class="error-message">[[${error}]]</p>
+
+    <form th:action="@{/admins/invite}" method="post">
+        <label>Email:</label>
+        <input type="email" name="email" required/>
+        <button type="submit">Invite Admin</button>
+    </form>
+</div>
+</body>
+</html>

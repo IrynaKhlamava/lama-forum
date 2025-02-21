@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LAMA forum homepage</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <div th:if="${username == null}">
+        <a th:href="@{/users/login}">Login</a> | <a th:href="@{/users/register}">Register</a>
+    </div>
+
+    <div th:if="${username != null}">
+        <p>Welcome, <strong th:text="${username}"></strong>!</p>
+        <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+        <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;">
+            <input type="submit"/>
+        </form>
+    </div>
+    <div th:if="${isAdmin}">
+        <form th:action="@{/admins/invite}" method="get">
+            <button type="submit">Invite Admin</button>
+        </form>
+    </div>
+
+    <h2>Forum's topics</h2>
+    <a th:href="@{/topics/create}" class="btn">Create Topic</a>
+
+    <div th:each="topic : ${topics}" class="topic">
+        <h3>
+            <a th:href="@{/topics/{id}(id=${topic.id})}" th:text="${topic.title}"></a>
+        </h3>
+        <p th:text="${topic.content}"></p>
+        <p>
+            <strong>author</strong> <span th:text="${topic.user.name}"></span>
+            <strong>, </strong> <span th:text="${#temporals.format(topic.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+        </p>
+    </div>
+
+    <div>
+        <a th:if="${hasPrev}" th:href="@{/(page=${currentPage - 1}, size=${size})}" class="btn">Previous</a>
+        <a th:if="${hasNext}" th:href="@{/(page=${currentPage + 1}, size=${size})}" class="btn">Next</a>
+    </div>
+
+</div>
+
+</body>
+</html>

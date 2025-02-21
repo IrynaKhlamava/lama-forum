@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Topic</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+
+<div class="container">
+    <h2>Edit Topic</h2>
+
+    <form th:action="@{/topics/update}" method="post" th:object="${topic}">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label>Title:</label>
+        <input type="text" th:field="*{title}" required/>
+
+        <label>Content:</label>
+        <textarea th:field="*{content}" required></textarea>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <a href="/">Cancel</a>
+</div>
+
+</body>
+</html>

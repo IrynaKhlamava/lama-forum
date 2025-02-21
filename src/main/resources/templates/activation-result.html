@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activation Result</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script>
+        setTimeout(function () {
+            window.location.href = "/";
+        }, 5000);
+    </script>
+</head>
+<body>
+<div class="container">
+    <h2>Account Activation</h2>
+    <p th:text="${message}">Activation status message</p>
+    <p>You will be redirected to the homepage in 5 seconds...</p>
+    <a href="/">Go to Homepage</a>
+</div>
+</body>
+</html>
