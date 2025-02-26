@@ -3,6 +3,7 @@ package com.company.service.impl;
 import com.company.dto.AdminAccountDto;
 import com.company.model.AdminInvitation;
 import com.company.model.User;
+import com.company.model.enumType.RoleName;
 import com.company.repository.AdminInvitationRepository;
 import com.company.service.AdminInvitationService;
 import com.company.service.EmailService;
@@ -33,7 +34,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
     private final EmailService emailService;
 
     @Transactional
-    public void inviteAdmin(String inviteeEmail,  Principal principal) {
+    public void inviteAdmin(String inviteeEmail, Principal principal) {
 
         String inviterEmail = principal.getName();
 
@@ -50,7 +51,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
 
         invitationRepository.save(invitation);
 
-        sendInviteByEmail(inviteeEmail, token);
+        sendInvitationByEmail(inviteeEmail, token);
 
         logger.info("Invitation for new admin sent to {}", inviteeEmail);
 
@@ -75,9 +76,9 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
         return invitation.getExpirationDate().isBefore(LocalDateTime.now());
     }
 
-    private void sendInviteByEmail(String inviteeEmail, String token) {
-        String invitationLink = "http://localhost:8080/admins/set-admin-account?token=" + token;
-        emailService.sendEmail(inviteeEmail, "Admin Invitation", "Click here to set your password: " + invitationLink);
+    private void sendInvitationByEmail(String inviteeEmail, String token) {
+        emailService.prepareAndSendEmail(inviteeEmail, token, RoleName.ADMIN);
+
     }
 
     private AdminInvitation createAdminInvitation(String inviteeEmail, User inviter, String token) {
@@ -98,7 +99,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
 
         AdminInvitation invitation = findOrThrowInvitationByToken(token);
 
-        userService.createAndActivateAdminAccount(adminAccountDto.getName(), invitation.getEmail(), adminAccountDto.getPassword());
+        userService.assignAdminRoleAndActivate(adminAccountDto.getName(), invitation.getEmail(), adminAccountDto.getPassword());
 
         logger.info("Admin invitation accepted. User with email {} is now an admin.", invitation.getEmail());
 

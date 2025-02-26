@@ -5,6 +5,7 @@ import com.company.model.User;
 import com.company.model.enumType.RoleName;
 import com.company.repository.UserRepository;
 import com.company.service.EmailService;
+import com.company.service.JwtService;
 import com.company.service.RoleService;
 import com.company.service.UserService;
 import com.company.service.exception.UserRegistrationException;
@@ -97,15 +98,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Role " + roleName + " not found"));
     }
 
-    private String generateActivationLink(User user) {
-        String token = jwtService.generateToken(user.getEmail());
-        return "http://localhost:8080/users/activate?token=" + token;
-    }
-
     private void sendActivationEmail(User user) {
-        String activationLink = generateActivationLink(user);
-        emailService.sendEmail(user.getEmail(), "Activate Your Account",
-                "Click here to activate your account: " + activationLink);
+        String token = jwtService.generateToken(user.getEmail());
+        emailService.prepareAndSendEmail(user.getEmail(), token, RoleName.USER);
         logger.debug("Activation email sent to {}", user.getEmail());
     }
 
@@ -136,7 +131,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -167,21 +161,22 @@ public class UserServiceImpl implements UserService {
                 .anyMatch(role -> role.getName() == RoleName.ADMIN);
     }
 
-    @Override
-    public void save(User user) {
+    private void save(User user) {
         userRepository.save(user);
     }
 
     @Override
-    public void createAndActivateAdminAccount(String name, String email, String password) {
-        User newAdmin = new User();
-        newAdmin.setName(name);
-        newAdmin.setEmail(email);
-        newAdmin.setActive(true);
-        newAdmin.setCreatedAt(LocalDateTime.now());
-        newAdmin.setPassword(hashPassword(password));
-        newAdmin.setRoles(Set.of(getRoleByName(RoleName.ADMIN)));
-        activateUserAccount(newAdmin);
+    public void assignAdminRoleAndActivate(String name, String email, String password) {
+        User user = findByEmail(email);
+        user.setName(name);
+        user.setEmail(email);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setPassword(hashPassword(password));
+
+        Role adminRole = getRoleByName(RoleName.ADMIN);
+
+        user.getRoles().add(adminRole);
+        activateUserAccount(user);
     }
 
     @Override
