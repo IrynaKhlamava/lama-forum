@@ -1,11 +1,15 @@
 package com.company.controller;
 
+import com.company.dto.TopicDto;
 import com.company.model.Topic;
 import com.company.model.User;
 import com.company.service.TopicService;
 import com.company.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,16 +31,22 @@ public class TopicController {
     private final UserService userService;
 
     @GetMapping("/create")
-    public String showCreateTopicForm() {
+    public String showCreateTopicForm(Model model) {
+        model.addAttribute("topicDto", new TopicDto());
         return "create-topic";
     }
 
     @PostMapping("/create")
-    public String createTopic(@RequestParam("title") String title,
-                              @RequestParam("content") String content,
-                              Principal principal) {
+    public String createTopic(@Valid @ModelAttribute("topicDto") TopicDto topicDto,
+                              Principal principal,
+                              BindingResult result,
+                              Model model) {
 
-        topicService.createAndSaveTopic(title, content, principal);
+        if (result.hasErrors()) {
+            model.addAttribute("topicDto", topicDto);
+            return "create-topic";
+        }
+        topicService.createAndSaveTopic(topicDto, principal);
 
         return "redirect:/";
     }

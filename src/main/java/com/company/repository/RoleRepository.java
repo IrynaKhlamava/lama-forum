@@ -1,7 +1,7 @@
 package com.company.repository;
 
 import com.company.model.Role;
-import com.company.model.enums.RoleName;
+import com.company.model.enumType.RoleName;
 
 import java.util.Optional;
 

@@ -99,8 +99,4 @@ public class JpaConfiguration {
         return properties;
     }
 
-    @Bean
-    public CacheManager cacheManager() {
-        return EhcacheConfig.createCacheManager();
-    }
 }

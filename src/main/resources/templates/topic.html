@@ -16,7 +16,7 @@
         <span th:text="${#temporals.format(topic.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
     </p>
 
-    <p th:if="${isArchived}" style="color: red;" class="archived-warning">This topic is archived and cannot be modified
+    <p th:if="${isArchived}" class="error-message">This topic is archived and cannot be modified
         or commented on</p>
 
     <p><a th:href="@{/}">Back to Home</a></p>
@@ -32,8 +32,8 @@
         <h3>Leave your comment on the topic</h3>
         <form th:action="@{/comments/add}" method="post">
             <input type="hidden" name="topicId" th:value="${topic.id}"/>
-            <textarea name="content" placeholder="Write your comment " required></textarea>
-            <button type="submit">Comment</button>
+            <textarea name="content" placeholder="Write your comment " th:text="${content}" required></textarea>
+            <button type="submit">Add Comment</button>
         </form>
     </div>
     <div th:if="${message}" class="success-message">

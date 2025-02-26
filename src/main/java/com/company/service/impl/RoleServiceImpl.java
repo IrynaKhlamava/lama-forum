@@ -1,7 +1,7 @@
 package com.company.service.impl;
 
 import com.company.model.Role;
-import com.company.model.enums.RoleName;
+import com.company.model.enumType.RoleName;
 import com.company.repository.RoleRepository;
 import com.company.service.RoleService;
 

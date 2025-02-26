@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 
 @ControllerAdvice
@@ -64,7 +65,16 @@ public class GlobalExceptionHandler {
     public ModelAndView handleException(Exception ex) {
         logger.error("An error has occurred: ", ex);
         ModelAndView modelAndView = new ModelAndView("error");
-        modelAndView.addObject("message", "Server ERROR");
+        modelAndView.addObject("message", "Something went wrong. Please try again later");
         return modelAndView;
     }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ModelAndView handleNotFound(NoHandlerFoundException ex) {
+        logger.error("Requested page not found: {}", ex.getRequestURL());
+        ModelAndView modelAndView = new ModelAndView("error");
+        modelAndView.addObject("error", "The page you requested does not exist.");
+        return modelAndView;
+    }
+
 }

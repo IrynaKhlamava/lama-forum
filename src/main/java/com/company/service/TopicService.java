@@ -1,5 +1,6 @@
 package com.company.service;
 
+import com.company.dto.TopicDto;
 import com.company.model.Topic;
 import com.company.model.User;
 
@@ -10,7 +11,7 @@ public interface TopicService {
 
     List<Topic> getTopicsByPage(int page, int size);
 
-    void createAndSaveTopic(String title, String content, Principal principal);
+    void createAndSaveTopic(TopicDto topicDto, Principal principal);
 
     Topic findById(Long id);
 

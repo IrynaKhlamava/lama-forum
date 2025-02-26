@@ -1,9 +1,13 @@
 package com.company.controller;
 
+import com.company.dto.CommentDto;
 import com.company.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,19 +28,25 @@ public class CommentController {
 
     @PostMapping("/add")
     public String addComment(@RequestParam("topicId") Long topicId,
-                             @RequestParam("content") String content,
-                             Principal principal,
-                             RedirectAttributes redirectAttributes) {
+                             @Valid @ModelAttribute CommentDto commentDto,
+                             BindingResult result,
+                             RedirectAttributes redirectAttributes,
+                             Principal principal) {
 
-        commentService.addComment(topicId, content, principal);
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errors", result.getAllErrors());
+            redirectAttributes.addFlashAttribute("commentDto", commentDto);
 
+            return "redirect:/topics/" + topicId;
+        }
+
+        commentService.addComment(topicId, commentDto, principal);
         redirectAttributes.addFlashAttribute("message", "Comment added successfully!");
 
         return "redirect:/topics/" + topicId;
     }
 
     @PostMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public String deleteComment(@PathVariable("id") Long commentId,
                                 @RequestParam("topicId") Long topicId,
                                 RedirectAttributes redirectAttributes) {

@@ -1,5 +1,6 @@
 package com.company.service.impl;
 
+import com.company.dto.AdminAccountDto;
 import com.company.model.AdminInvitation;
 import com.company.model.User;
 import com.company.repository.AdminInvitationRepository;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,13 +33,15 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
     private final EmailService emailService;
 
     @Transactional
-    public String inviteAdmin(String inviteeEmail, String inviterEmail) {
+    public String inviteAdmin(String inviteeEmail,  Principal principal) {
+
+        String inviterEmail = principal.getName();
 
         User inviter = userService.findByEmail(inviterEmail);
 
         logger.info("Admin with email {} invites a new admin with email: {}", inviterEmail, inviteeEmail);
 
-        validateInviteeEmailAndInvitation(inviteeEmail);
+        validateIfActiveInvitationExist(inviteeEmail);
 
         userService.validateNotAdminBeforeInvitation(inviteeEmail);
 
@@ -53,7 +57,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
         return "Invitation sent!";
     }
 
-    private void validateInviteeEmailAndInvitation(String inviteeEmail) {
+    private void validateIfActiveInvitationExist(String inviteeEmail) {
         Optional<AdminInvitation> existingInvitation = invitationRepository.findByEmail(inviteeEmail);
         existingInvitation.ifPresent(this::handleExistingInvitation);
     }
@@ -73,7 +77,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
     }
 
     private void sendInviteByEmail(String inviteeEmail, String token) {
-        String invitationLink = "http://localhost:8080/admins/accept?token=" + token;
+        String invitationLink = "http://localhost:8080/admins/set-admin-account?token=" + token;
         emailService.sendEmail(inviteeEmail, "Admin Invitation", "Click here to set your password: " + invitationLink);
     }
 
@@ -87,15 +91,15 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
     }
 
     @Transactional
-    public boolean finalizeAdminInvitation(String name, String token, String password) {
+    public boolean finalizeAdminInvitation(AdminAccountDto adminAccountDto) {
+
+        String token = adminAccountDto.getToken();
 
         logger.info("Processing admin invitation with token: {}", token);
 
-        AdminInvitation invitation = findOrThrowByToken(token);
+        AdminInvitation invitation = findOrThrowInvitationByToken(token);
 
-        checkInvitation(invitation);
-
-        userService.createAndActivateAdminAccount(name, invitation.getEmail(), password);
+        userService.createAndActivateAdminAccount(adminAccountDto.getName(), invitation.getEmail(), adminAccountDto.getPassword());
 
         logger.info("Admin invitation accepted. User with email {} is now an admin.", invitation.getEmail());
 
@@ -107,33 +111,29 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
 
     }
 
-    @Override
-    public Optional<AdminInvitation> getOptionalInvitationByToken(String token) {
+    private Optional<AdminInvitation> findInvitationByToken(String token) {
         return invitationRepository.findByToken(token);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void validateInvitation(String token) {
-        AdminInvitation invitation = getOptionalInvitationByToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("Invitation by token not found"));
+    public void validateInvitationToken(String token) {
+        AdminInvitation invitation = findOrThrowInvitationByToken(token);
 
-        if (isInvitationExpired(invitation)) {
-            throw new IllegalStateException("Invitation token has expired");
-        }
+        checkExistedInvitation(invitation);
 
         logger.info("User with email {} accepts invitation by adminId {}", invitation.getEmail(), invitation.getInvitedBy());
     }
 
-    private AdminInvitation findOrThrowByToken(String token) {
-        return getOptionalInvitationByToken(token)
+    private AdminInvitation findOrThrowInvitationByToken(String token) {
+        return findInvitationByToken(token)
                 .orElseThrow(() -> {
                     logger.warn("Invalid admin invitation token");
                     return new EntityNotFoundException("Invalid invitation token");
                 });
     }
 
-    private void checkInvitation(AdminInvitation invitation) {
+    private void checkExistedInvitation(AdminInvitation invitation) {
         if (invitation.isAccepted()) {
             logger.warn("Admin invitation already accepted for email: {}", invitation.getEmail());
             throw new IllegalStateException("Invitation already accepted");

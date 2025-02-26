@@ -1,4 +1,4 @@
-package com.company.model.enums;
+package com.company.model.enumType;
 
 public enum RoleName {
 

@@ -1,6 +1,6 @@
 package com.company.model;
 
-import com.company.model.enums.RoleName;
+import com.company.model.enumType.RoleName;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

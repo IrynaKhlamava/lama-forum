@@ -1,5 +1,6 @@
 package com.company.service.impl;
 
+import com.company.dto.TopicDto;
 import com.company.model.Topic;
 import com.company.model.User;
 import com.company.repository.TopicRepository;
@@ -40,10 +41,10 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     @Transactional
-    public void createAndSaveTopic(String title, String content, Principal principal) {
-        Topic topic = createTopic(title, content, principal);
+    public void createAndSaveTopic(TopicDto topicDto, Principal principal) {
+        Topic createdTopic = createTopic(topicDto.getTitle(), topicDto.getContent(), principal);
 
-        save(topic);
+        save(createdTopic);
 
         logger.info("New Topic has been created (Email: {})", principal.getName());
     }

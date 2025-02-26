@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.bind.annotation.PostMapping;
 
 
 @Configuration
@@ -24,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admins/invite").hasRole("ADMIN")
+                        .requestMatchers("/admins/invite", "/comments/delete").hasRole("ADMIN")
                         .requestMatchers("/", "/users/register", "/users/activate","/users/login", "/css/**", "/admins/accept", "/admins/set-admin-account").permitAll()
                         .anyRequest().authenticated()
                 )

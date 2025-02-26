@@ -1,5 +1,6 @@
 package com.company.service.impl;
 
+import com.company.dto.CommentDto;
 import com.company.model.Comment;
 import com.company.model.Topic;
 import com.company.model.User;
@@ -31,8 +32,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void addComment(Long topicId, String content, Principal principal) {
-        Comment comment = createComment(topicId, content, principal);
+    public void addComment(Long topicId, CommentDto commentDto, Principal principal) {
+        Comment comment = createComment(topicId, commentDto, principal);
         saveComment(comment);
     }
 
@@ -52,13 +53,13 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.save(comment);
     }
 
-    private Comment createComment(Long topicId, String content, Principal principal) {
+    private Comment createComment(Long topicId, CommentDto commentDto, Principal principal) {
         User user = userService.findByEmail(principal.getName());
         Topic topic = topicService.findById(topicId);
         return Comment.builder()
                 .user(user)
                 .topic(topic)
-                .content(content.trim())
+                .content(commentDto.content().trim())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

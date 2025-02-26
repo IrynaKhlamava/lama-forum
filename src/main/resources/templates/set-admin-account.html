@@ -12,14 +12,14 @@
     <h2>Set Your Admin Account</h2>
     <p th:if="${error}" style="color: red;">[[${error}]]</p>
 
-    <form th:action="@{/admins/set-admin-account}" method="post">
-        <input type="hidden" name="token" th:value="${token}"/>
+    <form th:action="@{/admins/set-admin-account}" th:object="${adminAccountDto}" method="post">
+        <input type="hidden" th:field="*{token}"/>
 
         <label for="name">Your Name:</label>
-        <input type="text" id="name" name="name" required/>
+        <input type="text" id="name" th:field="*{name}" name="name" required/>
 
         <label for="password">New Password:</label>
-        <input type="password" id="password" name="password" required/>
+        <input type="password" id="password" th:field="*{password}" name="password" required/>
 
         <button type="submit">Save</button>
     </form>

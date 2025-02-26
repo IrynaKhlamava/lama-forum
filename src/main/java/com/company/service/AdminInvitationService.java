@@ -1,16 +1,16 @@
 package com.company.service;
 
+import com.company.dto.AdminAccountDto;
 import com.company.model.AdminInvitation;
 
+import java.security.Principal;
 import java.util.Optional;
 
 public interface AdminInvitationService {
     
-    String inviteAdmin(String email, String inviterEmail);
+    String inviteAdmin(String email, Principal principal);
 
-    Optional<AdminInvitation> getOptionalInvitationByToken(String token);
+    boolean finalizeAdminInvitation(AdminAccountDto adminAccountDto);
 
-    boolean finalizeAdminInvitation(String name, String token, String password);
-
-    void validateInvitation(String token);
+    void validateInvitationToken(String token);
 }
