@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserRegistrationException.class)
     public ModelAndView handleUserRegistrationException(UserRegistrationException ex) {
-        ModelAndView modelAndView = new ModelAndView("error");
+        ModelAndView modelAndView = new ModelAndView("register-result");
         modelAndView.addObject("message", ex.getMessage());
         return modelAndView;
     }

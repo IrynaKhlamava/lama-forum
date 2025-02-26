@@ -9,7 +9,6 @@ import com.company.service.RoleService;
 import com.company.service.UserService;
 import com.company.service.exception.UserRegistrationException;
 import com.company.service.exception.UserServiceImplException;
-import com.company.service.util.JwtUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +39,8 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateActivationLink(User user) {
-        String token = JwtUtil.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail());
         return "http://localhost:8080/users/activate?token=" + token;
     }
 
@@ -127,11 +128,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean isTokenValid(String token) {
-        return JwtUtil.validateToken(token);
+        return jwtService.validateToken(token);
     }
 
     private String extractEmailFromToken(String token) {
-        return JwtUtil.extractEmail(token);
+        return jwtService.extractEmail(token);
     }
 
     @Override
