@@ -33,7 +33,7 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
     private final EmailService emailService;
 
     @Transactional
-    public String inviteAdmin(String inviteeEmail,  Principal principal) {
+    public void inviteAdmin(String inviteeEmail,  Principal principal) {
 
         String inviterEmail = principal.getName();
 
@@ -54,7 +54,6 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
 
         logger.info("Invitation for new admin sent to {}", inviteeEmail);
 
-        return "Invitation sent!";
     }
 
     private void validateIfActiveInvitationExist(String inviteeEmail) {

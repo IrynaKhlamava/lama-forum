@@ -23,5 +23,4 @@ public interface TopicService {
 
     void validateEditPermissions(Topic topic, User currentUser);
 
-    long getTotalTopics();
 }

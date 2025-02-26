@@ -35,11 +35,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public long getTotalTopics() {
-        return topicRepository.countTopics();
-    }
-
-    @Override
     @Transactional
     public void createAndSaveTopic(TopicDto topicDto, Principal principal) {
         Topic createdTopic = createTopic(topicDto.getTitle(), topicDto.getContent(), principal);
