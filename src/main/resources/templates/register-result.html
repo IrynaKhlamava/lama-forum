@@ -8,9 +8,14 @@
 </head>
 <body>
 <div class="container">
+
     <h2>Registration result</h2>
+
     <p th:text="${message}"></p>
-    <a href="/">Back to Home</a>
+
+    <p><a th:href="@{/users/login}">Login</a></p>
+
+    <p><a href="/">Back to Home</a></p>
 </div>
 </body>
 </html>

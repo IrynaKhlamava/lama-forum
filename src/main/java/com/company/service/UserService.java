@@ -12,9 +12,7 @@ public interface UserService{
 
     boolean isAdmin(User user);
 
-    void save(User newAdmin);
-
-    void createAndActivateAdminAccount(String name, String email, String password);
+    void assignAdminRoleAndActivate(String name, String email, String password);
 
     void validateNotAdminBeforeInvitation(String inviteeEmail);
 

@@ -36,7 +36,7 @@ public class Topic {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT", length = 5000)
     private String content;
 
     @Column(name = "is_archived", nullable = false)

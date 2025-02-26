@@ -1,5 +1,6 @@
 package com.company.service.impl;
 
+import com.company.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -10,13 +11,17 @@ import io.jsonwebtoken.security.Keys;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 
 @Component
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtServiceImpl.class);
 
     @Value("${jwt.secret.key}")
     private String key;
@@ -38,13 +43,15 @@ public class JwtService {
                     .parseSignedClaims(token);
 
             return !claims.getPayload().getExpiration().before(new Date());
-        } catch (JwtException e) {
-            return false;
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.warn("Invalid JWT token: {}", e.getMessage());
         }
+        return false;
     }
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
+        byte[] keyBytes = Decoders.BASE64.decode(key);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractEmail(String token) {
