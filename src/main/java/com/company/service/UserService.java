@@ -1,12 +1,17 @@
 package com.company.service;
 
+import com.company.dto.UserDto;
+import com.company.dto.UserTopicAccessDto;
+import com.company.model.Topic;
 import com.company.model.User;
+
+import java.util.Optional;
 
 public interface UserService{
 
-    String registerUser(User user);
+    String registerUser(UserDto userDto);
 
-    boolean activateUser(String token);
+    String activateUser(String token);
 
     User findByEmail(String email);
 
@@ -16,5 +21,8 @@ public interface UserService{
 
     void validateNotAdminBeforeInvitation(String inviteeEmail);
 
-    User getCurrentUser();
+    Optional<User> getCurrentUser();
+
+    UserTopicAccessDto getUserTopicAccess(Topic topic);
+
 }

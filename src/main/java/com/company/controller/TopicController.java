@@ -1,6 +1,7 @@
 package com.company.controller;
 
 import com.company.dto.TopicDto;
+import com.company.dto.UserTopicAccessDto;
 import com.company.model.Topic;
 import com.company.model.User;
 import com.company.service.TopicService;
@@ -39,39 +40,27 @@ public class TopicController {
     public String createTopic(@Valid @ModelAttribute("topicDto") TopicDto topicDto,
                               Principal principal,
                               BindingResult result,
-                              Model model) {
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
             model.addAttribute("topicDto", topicDto);
             return "create-topic";
         }
         topicService.createAndSaveTopic(topicDto, principal);
-
+        redirectAttributes.addFlashAttribute("message", "New Topic has been created");
         return "redirect:/";
     }
 
     @GetMapping("/{id}")
     public ModelAndView viewTopic(@PathVariable("id") Long id) {
         Topic topic = topicService.findById(id);
+        UserTopicAccessDto userTopicAccess = userService.getUserTopicAccess(topic);
 
         ModelAndView modelAndView = new ModelAndView("topic");
         modelAndView.addObject("topic", topic);
         modelAndView.addObject("isArchived", topic.isArchived());
-
-        User currentUser = userService.getCurrentUser();
-        boolean isAdmin = userService.isAdmin(currentUser);
-
-        if (currentUser != null) {
-            modelAndView.addObject("username", currentUser.getName());
-            modelAndView.addObject("canEdit", (!topic.isArchived() && topic.getUser().getId().equals(currentUser.getId())) || isAdmin);
-            modelAndView.addObject("canComment", !topic.isArchived() || isAdmin);
-            modelAndView.addObject("isAdmin", isAdmin);
-        } else {
-            modelAndView.addObject("username", null);
-            modelAndView.addObject("canEdit", false);
-            modelAndView.addObject("canComment", false);
-            modelAndView.addObject("isAdmin", false);
-        }
+        modelAndView.addObject("userTopicAccess", userTopicAccess);
 
         return modelAndView;
     }
@@ -94,7 +83,7 @@ public class TopicController {
 
         Topic topic = topicService.findById(id);
 
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userService.getCurrentUser().orElse(null);
 
         topicService.validateEditPermissions(topic, currentUser);
 
@@ -102,14 +91,18 @@ public class TopicController {
     }
 
     @PostMapping("/update")
-    public String updateTopic(@ModelAttribute("topic") Topic topic,
+    public String updateTopic(@ModelAttribute("topic") @Valid TopicDto topicDto,
+                              BindingResult result,
                               Principal principal,
-                              RedirectAttributes redirectAttributes) {
+                              Model model) {
 
-        topicService.updateTopic(topic, principal.getName());
-        redirectAttributes.addFlashAttribute("message", "Topic has been updated successfully");
+        if (result.hasErrors()) {
+            model.addAttribute("topic", topicDto);
+            return "edit-topic";
+        }
 
-        return "redirect:/topics/" + topic.getId();
+        topicService.updateTopic(topicDto, principal.getName());
+        return "redirect:/topics/" + topicDto.getId();
     }
 
 }

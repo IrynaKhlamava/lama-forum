@@ -8,7 +8,6 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
 
-
 @Configuration
 public class EhcacheConfig {
 

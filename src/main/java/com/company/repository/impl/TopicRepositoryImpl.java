@@ -35,7 +35,7 @@ public class TopicRepositoryImpl implements TopicRepository {
     }
 
     @Override
-    public List<Topic> findAll(int page, int pageSize) {
+    public List<Topic> findTopicsByPage(int page, int pageSize) {
         List<Long> topicIds = entityManager.createQuery(
                         "SELECT t.id FROM Topic t ORDER BY t.createdAt DESC", Long.class)
                 .setFirstResult((page - 1) * pageSize)
@@ -51,12 +51,6 @@ public class TopicRepositoryImpl implements TopicRepository {
                                 "WHERE t.id IN :topicIds", Topic.class)
                 .setParameter("topicIds", topicIds)
                 .getResultList();
-    }
-
-    @Override
-    public long countTopics() {
-        return entityManager.createQuery("SELECT COUNT(t) FROM Topic t", Long.class)
-                .getSingleResult();
     }
 
 }

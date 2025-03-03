@@ -9,40 +9,54 @@
 
 <div class="container">
 
-    <div th:if="${username == null}">
+    <div th:if="${homePage.username == null}">
         <a th:href="@{/users/login}">Login</a> | <a th:href="@{/users/register}">Register</a>
     </div>
 
-    <div th:if="${username != null}">
-        <p>Welcome, <strong th:text="${username}"></strong>!</p>
+    <div th:if="${homePage.username != null}">
+        <p>Welcome, <strong th:text="${homePage.username}"></strong>!</p>
         <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
         <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;">
             <input type="submit"/>
         </form>
     </div>
-    <div th:if="${isAdmin}">
+
+    <div th:if="${homePage.isAdmin}">
         <form th:action="@{/admins/invite}" method="get">
             <button type="submit">Invite Admin</button>
         </form>
     </div>
 
+    <div th:if="${homePage.message != null and homePage.message != ''}" id="successMessage" class="success-message">
+        <p th:text="${homePage.message}"></p>
+
+        <script>
+            setTimeout(function () {
+                let messageDiv = document.getElementById("successMessage");
+                if (messageDiv) {
+                    messageDiv.style.display = "none";
+                }
+            }, 5000);
+        </script>
+    </div>
+
     <h2>Forum's topics</h2>
     <a th:href="@{/topics/create}" class="btn">Create Topic</a>
 
-    <div th:each="topic : ${topics}" class="topic">
+    <div th:each="topic : ${homePage.topics}" class="topic">
         <h3>
             <a th:href="@{/topics/{id}(id=${topic.id})}" th:text="${topic.title}"></a>
         </h3>
         <p th:text="${topic.content}"></p>
         <p>
-            <strong>author</strong> <span th:text="${topic.user.name}"></span>
+            <strong>Author:</strong> <span th:text="${topic.user.name}"></span>
             <strong>, </strong> <span th:text="${#temporals.format(topic.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
         </p>
     </div>
 
     <div>
-        <a th:if="${hasPrev}" th:href="@{/(page=${currentPage - 1}, size=${size})}" class="btn">Previous</a>
-        <a th:if="${hasNext}" th:href="@{/(page=${currentPage + 1}, size=${size})}" class="btn">Next</a>
+        <a th:if="${homePage.hasPrev}" th:href="@{/(page=${homePage.currentPage - 1}, size=${homePage.size})}" class="btn">Previous</a>
+        <a th:if="${homePage.hasNext}" th:href="@{/(page=${homePage.currentPage + 1}, size=${homePage.size})}" class="btn">Next</a>
     </div>
 
 </div>

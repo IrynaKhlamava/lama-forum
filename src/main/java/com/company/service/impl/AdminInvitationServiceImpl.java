@@ -9,7 +9,7 @@ import com.company.service.AdminInvitationService;
 import com.company.service.EmailService;
 import com.company.service.UserService;
 import com.company.service.exception.AdminInvitationImplServiceException;
-import jakarta.persistence.EntityNotFoundException;
+import com.company.service.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,26 +122,26 @@ public class AdminInvitationServiceImpl implements AdminInvitationService {
 
         checkExistedInvitation(invitation);
 
-        logger.info("User with email {} accepts invitation by adminId {}", invitation.getEmail(), invitation.getInvitedBy());
+        logger.info("User with email {} accepts invitation by adminId {}", invitation.getEmail(), invitation.getInvitedBy().getId());
     }
 
     private AdminInvitation findOrThrowInvitationByToken(String token) {
         return findInvitationByToken(token)
                 .orElseThrow(() -> {
                     logger.warn("Invalid admin invitation token");
-                    return new EntityNotFoundException("Invalid invitation token");
+                    return new ResourceNotFoundException("Invalid invitation token");
                 });
     }
 
     private void checkExistedInvitation(AdminInvitation invitation) {
         if (invitation.isAccepted()) {
             logger.warn("Admin invitation already accepted for email: {}", invitation.getEmail());
-            throw new IllegalStateException("Invitation already accepted");
+            throw new AdminInvitationImplServiceException("Invitation already accepted");
         }
 
         if (isInvitationExpired(invitation)) {
             logger.warn("Admin invitation expired for email: {}", invitation.getEmail());
-            throw new IllegalStateException("Invitation already expired");
+            throw new AdminInvitationImplServiceException("Invitation already expired");
         }
     }
 }

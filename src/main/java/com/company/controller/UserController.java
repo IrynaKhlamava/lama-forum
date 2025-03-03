@@ -1,12 +1,14 @@
 package com.company.controller;
 
-import com.company.model.User;
+import com.company.dto.UserDto;
 import com.company.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -19,39 +21,45 @@ public class UserController {
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
 
-        model.addAttribute("user", new User());
+        model.addAttribute("userDto", new UserDto());
 
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user,
+    public String registerUser(@ModelAttribute("userDto") @Valid UserDto userDto,
+                               BindingResult result,
                                Model model) {
 
-        String message = userService.registerUser(user);
+        if (result.hasErrors()) {
+            return "register-form";
+        }
 
+        String message = userService.registerUser(userDto);
         model.addAttribute("message", message);
-
-        return "register-result";
+        return "result";
     }
 
-    @GetMapping("/register-result")
-    public String showRegistrationSuccessPage() {
-        return "register-result";
+    @GetMapping("/result")
+    public String showResultPage() {
+
+        return "result";
     }
 
     @GetMapping("/activate")
     public String activateAccount(@RequestParam("token") String token,
                                   Model model) {
-        boolean activated = userService.activateUser(token);
 
-        model.addAttribute("message", activated ? "Account activated successfully!" : "Activation failed");
+        String resultMessage = userService.activateUser(token);
 
-        return "activation-result";
+        model.addAttribute("message", resultMessage);
+
+        return "result";
     }
 
     @GetMapping("/login")
     public String showLoginPage() {
+
         return "login";
     }
 

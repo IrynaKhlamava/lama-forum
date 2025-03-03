@@ -11,8 +11,6 @@ public interface TopicRepository {
 
     Optional<Topic> findById(Long topicId);
 
-    List<Topic> findAll(int page, int size);
-
-    long countTopics();
+    List<Topic> findTopicsByPage(int page, int size);
 
 }
