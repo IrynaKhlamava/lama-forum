@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="container">
+
+  <h2>Result</h2>
+
+  <p th:text="${message}"></p>
+
+  <p><a th:href="@{/users/register}">Register</a>
+
+  <p><a th:href="@{/users/login}">Login</a></p>
+
+  <p><a href="/">Back to Home</a></p>
+
+  <p><a th:href="@{/users/register}">Register</a>
+</div>
+</body>
+</html>

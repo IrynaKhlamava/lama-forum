@@ -10,14 +10,16 @@
 <div class="container">
     <h2>Edit Topic</h2>
 
-    <form th:action="@{/topics/update}" method="post" th:object="${topic}">
-        <input type="hidden" th:field="*{id}"/>
+    <form th:action="@{/topics/update}" th:object="${topic}" method="post">
+        <input type="hidden" name="id" th:value="*{id}" />
 
-        <label>Title:</label>
-        <input type="text" th:field="*{title}" required/>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" th:value="*{title}" required>
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></span>
 
-        <label>Content:</label>
-        <textarea th:field="*{content}" required></textarea>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" required th:text="*{content}"></textarea>
+        <span th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></span>
 
         <button type="submit">Save Changes</button>
     </form>

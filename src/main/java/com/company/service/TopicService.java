@@ -19,8 +19,9 @@ public interface TopicService {
 
     void archiveTopic(Long id, String name);
 
-    void updateTopic(Topic topic, String name);
+    void updateTopic(TopicDto topicDto, String userEmail);
 
     void validateEditPermissions(Topic topic, User currentUser);
 
+    Topic refreshTopicCache(Long topicId);
 }

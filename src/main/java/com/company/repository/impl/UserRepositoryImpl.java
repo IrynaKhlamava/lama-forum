@@ -36,4 +36,14 @@ public class UserRepositoryImpl implements UserRepository {
                 .findFirst();
     }
 
+    @Override
+    public boolean isUsernameInUse(String name) {
+        Long count = entityManager.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.name = :name", Long.class)
+                .setParameter("name", name)
+                .getSingleResult();
+
+        return count > 0;
+    }
+
 }

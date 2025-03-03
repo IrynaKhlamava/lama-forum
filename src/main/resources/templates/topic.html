@@ -12,27 +12,26 @@
     <h2 th:text="${topic.title}"></h2>
     <p th:text="${topic.content}"></p>
 
-    <p><strong>author</strong> <span th:text="${topic.user.name}"></span> <strong>, </strong>
+    <p><strong>Author:</strong> <span th:text="${topic.user.name}"></span> <strong>, </strong>
         <span th:text="${#temporals.format(topic.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
     </p>
 
-    <p th:if="${isArchived}" class="error-message">This topic is archived and cannot be modified
-        or commented on</p>
+    <p th:if="${isArchived}" class="error-message">This topic is archived and cannot be modified or commented on</p>
 
     <p><a th:href="@{/}">Back to Home</a></p>
 
-    <div th:if="${canEdit}">
-        <a th:href="@{/topics/edit/{id}(id=${topic.id})}" th:if="${!isArchived || isAdmin}">Edit</a>
+    <div th:if="${userTopicAccess.canEdit}">
+        <a th:href="@{/topics/edit/{id}(id=${topic.id})}" th:if="${!isArchived || userTopicAccess.isAdmin}">Edit</a>
         <form th:action="@{/topics/archive/{id}(id=${topic.id})}" method="post">
             <button type="submit" th:if="${!isArchived}" class="btn">Archive</button>
         </form>
     </div>
 
-    <div th:if="${canComment}">
+    <div th:if="${userTopicAccess.canComment}">
         <h3>Leave your comment on the topic</h3>
         <form th:action="@{/comments/add}" method="post">
             <input type="hidden" name="topicId" th:value="${topic.id}"/>
-            <textarea name="content" placeholder="Write your comment " th:text="${content}" required></textarea>
+            <textarea name="content" placeholder="Write your comment" required></textarea>
             <button type="submit">Add Comment</button>
         </form>
     </div>
@@ -45,7 +44,7 @@
         <p><small>By <span th:text="${comment.user.name}"></span> on
             <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></small></p>
 
-        <div th:if="${isAdmin}">
+        <div th:if="${userTopicAccess.isAdmin}">
             <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="post">
                 <input type="hidden" name="topicId" th:value="${topic.id}" />
                 <button type="submit">Delete</button>

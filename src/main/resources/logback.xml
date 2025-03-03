@@ -12,6 +12,8 @@
 
     <logger name="org.hibernate.cache" level="DEBUG"/>
 
+    <logger name="net.sf.ehcache" level="DEBUG"/>
+
     <appender name="File" class="ch.qos.logback.core.FileAppender">
         <file>D:/java/forum/logs/app.log</file>
         <append>true</append>

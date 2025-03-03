@@ -43,5 +43,5 @@ public class AdminInvitation {
     private User invitedBy;
 
     @Column(nullable = false)
-    private boolean accepted = false;
+    private boolean accepted;
 }

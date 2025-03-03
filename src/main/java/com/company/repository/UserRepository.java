@@ -12,4 +12,5 @@ public interface UserRepository {
 
     Optional<User> findByUserName(String name);
 
+    boolean isUsernameInUse(String name);
 }

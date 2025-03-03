@@ -11,6 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TopicDto {
 
+    private Long id;
+
     @NotBlank(message = "Title cannot be blank")
     @Size(max = 255, message = "Title must be at most 255 characters")
     String title;

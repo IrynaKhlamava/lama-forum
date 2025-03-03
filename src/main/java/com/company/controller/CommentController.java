@@ -50,7 +50,7 @@ public class CommentController {
                                 @RequestParam("topicId") Long topicId,
                                 RedirectAttributes redirectAttributes) {
 
-        commentService.deleteCommentById(commentId);
+        commentService.deleteCommentById(commentId, topicId);
 
         redirectAttributes.addFlashAttribute("message", "Comment deleted successfully");
 

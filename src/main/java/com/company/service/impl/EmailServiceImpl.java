@@ -28,7 +28,6 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage message = createMimeMessage(to, subject, body);
             mailSender.send(message);
-            logger.info("Email sent successfully to {}", to);
         } catch (MessagingException e) {
             logger.error("Failed to send email to {}", to, e);
             throw new EmailSendingException("Failed to send email to " + to, e);

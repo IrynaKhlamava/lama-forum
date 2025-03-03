@@ -8,15 +8,19 @@
 
 <body>
 <div class="container">
-    <h2 style="text-align:center;">User Registration</h2>
+    <h2>User Registration</h2>
 
-    <form th:action="@{/users/register}" method="post" th:object="${user}">
+    <form th:action="@{/users/register}" method="post" th:object="${userDto}">
         <label>Username:</label>
         <input type="text" th:field="*{name}" required/>
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></span>
+
         <label>Email:</label>
         <input type="email" th:field="*{email}" required/>
+        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></span>
         <label>Password:</label>
         <input type="password" th:field="*{password}" required/>
+        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></span>
         <button type="submit">Register</button>
         <div class="message" th:if="${message}" th:text="${message}"></div>
     </form>

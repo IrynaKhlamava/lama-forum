@@ -1,6 +1,9 @@
 package com.company.service.impl;
 
+import com.company.dto.UserDto;
+import com.company.dto.UserTopicAccessDto;
 import com.company.model.Role;
+import com.company.model.Topic;
 import com.company.model.User;
 import com.company.model.enumType.RoleName;
 import com.company.repository.UserRepository;
@@ -8,14 +11,12 @@ import com.company.service.EmailService;
 import com.company.service.JwtService;
 import com.company.service.RoleService;
 import com.company.service.UserService;
-import com.company.service.exception.UserRegistrationException;
+import com.company.service.exception.ResourceNotFoundException;
 import com.company.service.exception.UserServiceImplException;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -45,11 +48,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String registerUser(User user) {
+    public String registerUser(UserDto userDto) {
+        Optional<String> validationMessage = validateUserRegistration(userDto);
 
-        validateUserRegistration(user);
+        if (validationMessage.isPresent()) {
+            return validationMessage.get();
+        }
 
-        initializeNewUser(user);
+        processUserRegistration(userDto);
+
+        return "Registration successful! Please check your email to activate your account";
+    }
+
+    private void processUserRegistration(UserDto userDto) {
+
+        User user = initializeNewUser(userDto);
 
         save(user);
 
@@ -57,21 +70,20 @@ public class UserServiceImpl implements UserService {
 
         sendActivationEmail(user);
 
-        logger.debug("Activation email sent to {}", user.getEmail());
-
-        return "Registration successful! Please check your email to activate your account";
     }
 
-    private void validateUserRegistration(User user) {
-        if (isUsernameAlreadyInUse(user.getName())) {
-            logger.warn("Registration failed: Username already in use (Username: {})", user.getName());
-            throw new UserRegistrationException("Username already in use");
+    private Optional<String> validateUserRegistration(UserDto userDto) {
+        if (isUsernameAlreadyInUse(userDto.getName())) {
+            logger.warn("Registration failed: Username already in use (Username: {})", userDto.getName());
+            return Optional.of("Username is already in use");
         }
 
-        if (isEmailAlreadyInUse(user.getEmail())) {
-            logger.warn("Registration failed: Email already in use (Email: {})", user.getEmail());
-            throw new UserRegistrationException("Email already in use");
+        if (isEmailAlreadyInUse(userDto.getEmail())) {
+            logger.warn("Registration failed: Email already in use (Email: {})", userDto.getEmail());
+            return Optional.of("Email is already registered");
         }
+
+        return Optional.empty();
     }
 
     private boolean isUsernameAlreadyInUse(String name) {
@@ -82,11 +94,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    private void initializeNewUser(User user) {
-        user.setPassword(hashPassword(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setActive(false);
-        user.setRoles(Set.of(getRoleByName(RoleName.USER)));
+    private User initializeNewUser(UserDto userDto) {
+        return User.builder()
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .password(hashPassword(userDto.getPassword()))
+                .createdAt(LocalDateTime.now())
+                .isActive(false)
+                .roles(Set.of(getRoleByName(RoleName.USER)))
+                .build();
     }
 
     private String hashPassword(String password) {
@@ -95,21 +111,20 @@ public class UserServiceImpl implements UserService {
 
     private Role getRoleByName(RoleName roleName) {
         return roleService.findByName(roleName)
-                .orElseThrow(() -> new EntityNotFoundException("Role " + roleName + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role " + roleName + " not found"));
     }
 
     private void sendActivationEmail(User user) {
         String token = jwtService.generateToken(user.getEmail());
         emailService.prepareAndSendEmail(user.getEmail(), token, RoleName.USER);
-        logger.debug("Activation email sent to {}", user.getEmail());
     }
 
     @Override
     @Transactional
-    public boolean activateUser(String token) {
+    public String activateUser(String token) {
         if (!isTokenValid(token)) {
             logger.warn("Activation failed: Invalid or expired token");
-            return false;
+            return "Activation failed: Invalid or expired token";
         }
 
         String email = extractEmailFromToken(token);
@@ -119,7 +134,7 @@ public class UserServiceImpl implements UserService {
             activateUserAccount(user);
             logger.info("User activated successfully (Email: {})", email);
         }
-        return true;
+        return "Account activated successfully! You can login now";
     }
 
     private boolean isTokenValid(String token) {
@@ -138,15 +153,15 @@ public class UserServiceImpl implements UserService {
     private boolean isValid(User user) {
         if (user == null) {
             logger.warn("User by email was not found");
-            throw new EntityNotFoundException("User not found for activation");
+            throw new UserServiceImplException("User not found for activation");
         }
         return true;
     }
 
     private boolean isNotActivated(User user) {
         if (user.isActive()) {
-            logger.warn("User already activated");
-            throw new IllegalStateException("User is already activated");
+            logger.warn("User is already activated");
+            throw new UserServiceImplException("User is already activated");
         }
         return true;
     }
@@ -157,8 +172,11 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean isAdmin(User user) {
+        if (user == null || user.getRoles() == null) {
+            return false;
+        }
         return user.getRoles().stream()
-                .anyMatch(role -> role.getName() == RoleName.ADMIN);
+                .anyMatch(role -> role.getName()== RoleName.ADMIN);
     }
 
     private void save(User user) {
@@ -167,16 +185,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void assignAdminRoleAndActivate(String name, String email, String password) {
-        User user = findByEmail(email);
+        checkUsername(name);
+
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setCreatedAt(LocalDateTime.now());
+            newUser.setPassword(hashPassword(password));
+            newUser.setRoles(new HashSet<>());
+            return newUser;
+        });
+
         user.setName(name);
-        user.setEmail(email);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setPassword(hashPassword(password));
 
         Role adminRole = getRoleByName(RoleName.ADMIN);
-
         user.getRoles().add(adminRole);
+
         activateUserAccount(user);
+        userRepository.save(user);
+    }
+
+    private void checkUsername(String name) {
+        if (isUsernameInUse(name)) {
+            throw new UserServiceImplException("Username: '" + name + "' already in use");
+        }
+    }
+
+    private boolean isUsernameInUse(String name) {
+        return userRepository.isUsernameInUse(name);
     }
 
     @Override
@@ -192,13 +228,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User getCurrentUser() {
+    public Optional<User> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+            return userRepository.findByEmail(userDetails.getUsername());
         }
-        return null;
+        return Optional.empty();
+    }
+
+    @Transactional
+    public UserTopicAccessDto getUserTopicAccess(Topic topic) {
+        Optional<User> optionalUser = getCurrentUser();
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            boolean isAdmin = isAdmin(user);
+            boolean canEdit = (!topic.isArchived() && topic.getUser().getId().equals(user.getId())) || isAdmin;
+            boolean canComment = !topic.isArchived() || isAdmin;
+
+            return new UserTopicAccessDto(user.getName(), canEdit, canComment, isAdmin);
+        }
+
+        return new UserTopicAccessDto(null, false, false, false);
     }
 
 }
